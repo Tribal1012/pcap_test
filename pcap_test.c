@@ -1,9 +1,24 @@
 #include <pcap.h>
 #include <stdio.h>
+#include <string.h>
+#include <arpa/inet.h>
 #include "net_header.h"
+
+void print_packet(const u_char *packet) {
+    for(unsigned int i=0; i<0x20; i++) {
+	printf("[%03x] ", i*16);
+	for(unsigned int j=0; j<16; j++)
+	    printf("%02x ", (*((char*)packet+((i*16)+j))&0xff));
+	printf("\n");
+    }
+}
 
 int main(int argc, char *argv[])
 {
+	ether_h eh;
+	ip_h ih;
+	tcp_h th;
+
 	pcap_t *handle;			/* Session handle */
 	int res;
 	char *dev;			/* The device to sniff on */
@@ -42,15 +57,37 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "Couldn't install filter %s: %s\n", filter_exp, pcap_geterr(handle));
 		return(2);
 	}
+	memset(&eh, 0, sizeof(eh));
+	memset(&ih, 0, sizeof(ih));
+	memset(&th, 0, sizeof(th));
 	while(1) {
-	    /* Grab a packet */
-	    res = pcap_next_ex(handle, &header, &packet);
-	    if(res == 0)
-		continue;
-	    else if(res == -1)
+	    if(pcap_next_ex(handle, &header, &packet)) {
+		memcpy(&eh, packet, sizeof(eh));
+		for(unsigned int i=0; i<6; i++) {
+		    printf("%02x", eh.Source[i]&0xff);
+		    if(i==5) break;
+		    printf(":");
+		}
+		printf("\n");
+		if(eh.Type == 0x8) {
+		    memcpy(&ih, packet+sizeof(eh), IP_MIN_SIZE);
+		    for(unsigned int i=0; i<4; i++) {
+			printf("%u", (char)((char*)&ih.Source)[i]&0xff);
+			if(i==3) break;
+			printf(".");
+		    }
+		    printf("\n");
+		    if(ip_h_len(ih.Ver_Len) != IP_MIN_SIZE)
+			memcpy(&ih, packet+sizeof(eh), ip_h_len(ih.Ver_Len));
+		    if(ih.Protocol == 0x6) {
+			memcpy(&th, packet+sizeof(eh)+ip_h_len(ih.Ver_Len), 
+				sizeof(th));
+			printf("port : %u\n", th.Dest&0xffff);
+		    }
+		}
+		print_packet(packet);
 		break;
-	    /* Print its length */
-	    printf("Jacked a packet with length of [%d]\n", header.len);
+	    }
 	}
 	/* And close the session */
 	pcap_close(handle);

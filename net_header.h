@@ -8,13 +8,14 @@ typedef unsigned int	DWORD;
 typedef struct _ETHERNET_HEADER {
     BYTE    Dest[6];
     BYTE    Source[6];
-    WORD    Length;
+    WORD    Type;
 } ether_h, *pether_h;
 
 
 /*
     L3 IP header
 */
+#define IP_MIN_SIZE 20
 #define ip_ver(x) (x>>4)
 #define ip_h_len(x) (x&0xf)
 #define ip_flags(x) (x>>13)
@@ -29,7 +30,7 @@ typedef struct _IP_HEADER {
     BYTE    Protocol;	    /* Protocol(tcp & udp) */
     WORD    Checksum;	    /* Header Checksum */
     DWORD   Source;	    /* Source Address */
-    DWORD   Dest;;	    /* Destination Address */
+    DWORD   Dest;	    /* Destination Address */
     union   pad {
 	char options[40];
 	char pad[40];
