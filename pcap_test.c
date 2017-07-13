@@ -1,10 +1,9 @@
-#include <pcap.h>
 #include <stdio.h>
 #include <string.h>
 #include <arpa/inet.h>
 #include "net_header.h"
 
-void print_packet(const u_char *packet) {
+void print_packet(const u_char *packet, const DWORD total_size) {
     for(unsigned int i=0; i<0x20; i++) {
 	printf("[%03x] ", i*16);
 	for(unsigned int j=0; j<16; j++)
@@ -13,83 +12,39 @@ void print_packet(const u_char *packet) {
     }
 }
 
-int main(int argc, char *argv[])
-{
-	ether_h eh;
-	ip_h ih;
-	tcp_h th;
-
-	pcap_t *handle;			/* Session handle */
-	int res;
-	char *dev;			/* The device to sniff on */
-	char errbuf[PCAP_ERRBUF_SIZE];	/* Error string */
-	struct bpf_program fp;		/* The compiled filter */
-	char filter_exp[] = "port 80";	/* The filter expression */
-	bpf_u_int32 mask;		/* Our netmask */
-	bpf_u_int32 net;		/* Our IP */
-	struct pcap_pkthdr header;	/* The header that pcap gives us */
-	const u_char *packet;		/* The actual packet */
-
-	/* Define the device */
-	dev = pcap_lookupdev(errbuf);
-	if (dev == NULL) {
-		fprintf(stderr, "Couldn't find default device: %s\n", errbuf);
-		return(2);
+int get_headers(pether_h peh, pip_h pih, ptcp_h pth, const u_char *packet) {
+    memcpy(peh, packet, ETHERNET_SIZE);
+    if(peh->Type == TYPE_IP) {
+	memcpy(pih, packet+ETHERNET_SIZE, IP_MIN_SIZE);
+	if(ip_h_len(pih->Ver_Len) != IP_MIN_SIZE)
+	    memcpy(pih, packet+ETHERNET_SIZE, ip_h_len(pih->Ver_Len));
+	if(pih->Protocol == TCP_PROTOCOL) {
+	    memcpy(pth, packet+ETHERNET_SIZE+ip_h_len(pih->Ver_Len), TCP_SIZE);
 	}
-	/* Find the properties for the device */
-	if (pcap_lookupnet(dev, &net, &mask, errbuf) == -1) {
-		fprintf(stderr, "Couldn't get netmask for device %s: %s\n", dev, errbuf);
-		net = 0;
-		mask = 0;
-	}
-	/* Open the session in promiscuous mode */
-	handle = pcap_open_live(dev, BUFSIZ, 1, 1000, errbuf);
-	if (handle == NULL) {
-		fprintf(stderr, "Couldn't open device %s: %s\n", dev, errbuf);
-		return(2);
-	}
-	/* Compile and apply the filter */
-	if (pcap_compile(handle, &fp, filter_exp, 0, net) == -1) {
-		fprintf(stderr, "Couldn't parse filter %s: %s\n", filter_exp, pcap_geterr(handle));
-		return(2);
-	}
-	if (pcap_setfilter(handle, &fp) == -1) {
-		fprintf(stderr, "Couldn't install filter %s: %s\n", filter_exp, pcap_geterr(handle));
-		return(2);
-	}
-	memset(&eh, 0, sizeof(eh));
-	memset(&ih, 0, sizeof(ih));
-	memset(&th, 0, sizeof(th));
-	while(1) {
-	    if(pcap_next_ex(handle, &header, &packet)) {
-		memcpy(&eh, packet, sizeof(eh));
-		for(unsigned int i=0; i<6; i++) {
-		    printf("%02x", eh.Source[i]&0xff);
-		    if(i==5) break;
-		    printf(":");
-		}
-		printf("\n");
-		if(eh.Type == 0x8) {
-		    memcpy(&ih, packet+sizeof(eh), IP_MIN_SIZE);
-		    for(unsigned int i=0; i<4; i++) {
-			printf("%u", (char)((char*)&ih.Source)[i]&0xff);
-			if(i==3) break;
-			printf(".");
-		    }
-		    printf("\n");
-		    if(ip_h_len(ih.Ver_Len) != IP_MIN_SIZE)
-			memcpy(&ih, packet+sizeof(eh), ip_h_len(ih.Ver_Len));
-		    if(ih.Protocol == 0x6) {
-			memcpy(&th, packet+sizeof(eh)+ip_h_len(ih.Ver_Len), 
-				sizeof(th));
-			printf("port : %u\n", th.Dest&0xffff);
-		    }
-		}
-		print_packet(packet);
-		break;
-	    }
-	}
-	/* And close the session */
-	pcap_close(handle);
-	return(0);
+    }
 }
+
+void print_ether(const pether_h peh) {
+    for(unsigned int i=0; i<6; i++) {
+	printf("%02x", peh->Source[i]&0xff);
+	if(i==5) break;
+	printf(":");
+    }
+    printf("\n");
+}
+
+void print_ip(const pip_h pih) {
+    for(unsigned int i=0; i<4; i++) {
+	printf("%u", *((char*)&(pih->Source)+i)&0xff);
+	if(i==3) break;
+	printf(".");
+    }
+    printf("\n");
+    printf("ip header len : %d\n", ip_h_len(pih->Ver_Len));
+}
+
+void print_tcp(const ptcp_h pth) {
+    printf("source port : %u\n", ntohs(pth->Source&0xffff));
+    printf("dest port : %u\n", ntohs(pth->Dest&0xffff));
+}
+

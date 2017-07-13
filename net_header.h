@@ -1,3 +1,6 @@
+#ifndef __NET_HEADER_H__
+#define __NET_HEADER_H__
+
 typedef unsigned char	BYTE;
 typedef unsigned short	WORD;
 typedef unsigned int	DWORD;
@@ -5,6 +8,8 @@ typedef unsigned int	DWORD;
 /*
     L2 Ethernet header
 */
+#define TYPE_IP 0x8
+#define ETHERNET_SIZE sizeof(ether_h)
 typedef struct _ETHERNET_HEADER {
     BYTE    Dest[6];
     BYTE    Source[6];
@@ -15,9 +20,13 @@ typedef struct _ETHERNET_HEADER {
 /*
     L3 IP header
 */
-#define IP_MIN_SIZE 20
+#define IP_MIN_SIZE 0x14
+#define TCP_PROTOCOL 0x6
+#define UDP_PROTOCOL 0x11
+#define IPV6_PROTOCOL 0x29
+
 #define ip_ver(x) (x>>4)
-#define ip_h_len(x) (x&0xf)
+#define ip_h_len(x) (x&0xf)*4
 #define ip_flags(x) (x>>13)
 #define ip_frag(x) (x&&0x1fff)
 typedef struct _IP_HEADER {
@@ -31,16 +40,18 @@ typedef struct _IP_HEADER {
     WORD    Checksum;	    /* Header Checksum */
     DWORD   Source;	    /* Source Address */
     DWORD   Dest;	    /* Destination Address */
-    union   pad {
+    union   _pad {
 	char options[40];
 	char pad[40];
-    };
+    } pad;
 } ip_h, *pip_h;
 
 
 /*
     L4 TCP header
 */
+#define TCP_SIZE sizeof(tcp_h)
+
 #define tcp_h_len(x)	x
 #define tcp_code(x)	(x&3f)
 typedef struct _TCP_HEADER {
@@ -53,3 +64,11 @@ typedef struct _TCP_HEADER {
     WORD    Checksum;	    /* Checksum */
     WORD    Urgent;	    /* Urgent */
 } tcp_h, *ptcp_h;
+
+int get_headers(pether_h peh, pip_h pih, ptcp_h pth, const u_char *packet);
+void print_ether(const pether_h peh);
+void print_ip(const pip_h pih);
+void print_tcp(const ptcp_h pth);
+void print_packet(const u_char *packet, const DWORD total_size);
+
+#endif

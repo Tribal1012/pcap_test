@@ -1,7 +1,7 @@
 .SUFFIXES : .c .o
  
-OBJECT = pcap_test.o
-SRC = pcap_test.c
+OBJECT = main.o pcap_test.o
+SRC = main.c pcap_test.c
  
 CC = gcc
 CFLAGS = -lpcap
@@ -23,4 +23,5 @@ new :
 	@$(MAKE) -s clean
 	@$(MAKE) -s
 
+main.o : main.c net_header.h
 pcap_test.o : pcap_test.c net_header.h
