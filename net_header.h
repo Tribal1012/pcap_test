@@ -1,6 +1,6 @@
-typedef char BYTE
-typedef short WORD
-typedef int DWORD
+typedef unsigned char	BYTE;
+typedef unsigned short	WORD;
+typedef unsigned int	DWORD;
 
 /*
     L2 Ethernet header
