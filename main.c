@@ -59,10 +59,14 @@ int main(int argc, char *argv[])
 	    if(pcap_next_ex(handle, &header, &packet)) {
 		get_headers(&eh, &ih, &th, packet);
 		
-		print_packet(packet, ih.Total_len);
+		print_packet(packet, ih.Total_len*4);
 		print_ether(&eh);
-		print_ip(&ih);
-		print_tcp(&th);
+		if(eh.Type == TYPE_IP) {
+		    print_ip(&ih);
+		    if(ih.Protocol == TCP_PROTOCOL) {
+			print_tcp(&th);
+		    }
+		}
 		break;
 	    }
 	}

@@ -25,10 +25,10 @@ typedef struct _ETHERNET_HEADER {
 #define UDP_PROTOCOL 0x11
 #define IPV6_PROTOCOL 0x29
 
-#define ip_ver(x) (x>>4)
-#define ip_h_len(x) (x&0xf)*4
-#define ip_flags(x) (x>>13)
-#define ip_frag(x) (x&&0x1fff)
+#define ip_ver(x) (((pip_h)x)>>4)
+#define ip_h_len(x) (((pip_h)x)->Ver_Len&0xf)*4
+#define ip_flags(x) (((pip_h)x)>>13)
+#define ip_frag(x) (((pip_h)x)->&&0x1fff)
 typedef struct _IP_HEADER {
     BYTE    Ver_Len;	    /* Version & Header Length */
     BYTE    Service_type;   /* Service_Type */
@@ -40,20 +40,22 @@ typedef struct _IP_HEADER {
     WORD    Checksum;	    /* Header Checksum */
     DWORD   Source;	    /* Source Address */
     DWORD   Dest;	    /* Destination Address */
-    union   _pad {
+    union   _ip_pad {
 	char options[40];
 	char pad[40];
-    } pad;
+    } ip_pad;
 } ip_h, *pip_h;
 
 
 /*
     L4 TCP header
 */
-#define TCP_SIZE sizeof(tcp_h)
+#define TCP_MIN_SIZE	0x14
+#define TCP_SIZE	sizeof(tcp_h)
+#define BUF_SIZE	256
 
-#define tcp_h_len(x)	x
-#define tcp_code(x)	(x&3f)
+#define tcp_h_len(x)	(((ptcp_h)x)->Len_Rsv_Code>>12)*4
+#define tcp_code(x)	(((ptcp_h)x)->Len_Rsv_Code&0x3f)
 typedef struct _TCP_HEADER {
     WORD    Source;
     WORD    Dest;
@@ -63,6 +65,11 @@ typedef struct _TCP_HEADER {
     WORD    Window;	    /* Window */
     WORD    Checksum;	    /* Checksum */
     WORD    Urgent;	    /* Urgent */
+    union   _tcp_pad {
+	char options[40];
+	char pad[40];
+    } tcp_pad;
+    char    data[BUF_SIZE];
 } tcp_h, *ptcp_h;
 
 int get_headers(pether_h peh, pip_h pih, ptcp_h pth, const u_char *packet);
