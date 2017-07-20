@@ -51,7 +51,7 @@ int get_headers(pether_h peh, pip_h pih, ptcp_h pth, const u_char *packet) {
 	    pth->Seq_num = l_endian32(((ptcp_h)temp)->Seq_num);
 	    pth->Ack_num = l_endian32(((ptcp_h)temp)->Ack_num);
 
-	    memcpy(&pth->data, packet+ETHERNET_SIZE+ip_h_len(pih)+tcp_h_len(temp), 24);
+//	    memcpy(&pth->data, packet+ETHERNET_SIZE+ip_h_len(pih)+tcp_h_len(temp), 24);
 	}
     }
 }
@@ -105,10 +105,12 @@ void print_tcp(const ptcp_h pth) {
     printf("Source port     : %u\n", pth->Source);
     printf("Destnation port : %u\n", pth->Dest);
 
+    /*
     printf("Data[24 Bytes]  : ");
     for(unsigned int i=0; i<24; i++) {
 	printf("%c", isprint(*(pth->data+i))?(char)*(pth->data+i):'.');
     }
     printf("\n");
+    */
 }
 
