@@ -3,27 +3,44 @@
 #include <string.h>
 #include "net_header.h"
 
+<<<<<<< HEAD
 #define data_len(x, y) (ip_t_len(x) - ip_h_len(x) - tcp_h_len(y))
+=======
+>>>>>>> fix1
 
 int main(int argc, char *argv[])
 {
 	ether_h eh;			/* Ethernet header */
 	ip_h ih;			/* IP header */
 	tcp_h th;			/* TCP header */
+<<<<<<< HEAD
 	char* data;			/* for Packet's data */
 	DWORD data_len;			/* Pakcet's data length */
+=======
+	DWORD data_offset = 0;	    	/* for Packet's data */
+	DWORD data_len;			/* Packet's data length */
+>>>>>>> fix1
 
 	pcap_t *handle;			/* Session handle */
-	int res;
-	char *dev;			/* The device to sniff on */
-	char errbuf[PCAP_ERRBUF_SIZE];	/* Error string */
+	DWORD res;
+	BYTE *dev;			/* The device to sniff on */
+	BYTE errbuf[PCAP_ERRBUF_SIZE];	/* Error string */
 	struct bpf_program fp;		/* The compiled filter */
-	char filter_exp[] = "port 80";	/* The filter expression */
+	BYTE filter_exp[] = "port 80";	/* The filter expression */
 	bpf_u_int32 mask;		/* Our netmask */
 	bpf_u_int32 net;		/* Our IP */
 	struct pcap_pkthdr header;	/* The header that pcap gives us */
 	const u_char *packet;		/* The actual packet */
 
+<<<<<<< HEAD
+=======
+	if(argc!=2) {
+	    fprintf(stderr, "Usage : %s [device_name]\n", argv[0]);
+	    return(2);
+	}
+	dev = argv[1];
+
+>>>>>>> fix1
 	/* Open the session in promiscuous mode */
 	handle = pcap_open_live("dum0", BUFSIZ, 1, 1000, errbuf);
 	if (handle == NULL) {
@@ -49,7 +66,7 @@ int main(int argc, char *argv[])
 	memset(&th, 0, sizeof(th));
 	while(1) {
 	    if(pcap_next_ex(handle, &header, &packet)) {
-		get_headers(&eh, &ih, &th, packet);
+		data_offset = get_headers(&eh, &ih, &th, packet);
 		
 		print_ether(&eh);
 		if(eh.Type == TYPE_IP) {
@@ -57,7 +74,11 @@ int main(int argc, char *argv[])
 		    if(ih.Protocol == TCP_PROTOCOL) {
 			print_tcp(&th);
 			data_len = data_len(&ih, &th);
+<<<<<<< HEAD
 			printf("data length : %x\n", data_len);
+=======
+			if(data_len != 0) print_data(((char*)packet)+data_offset, data_len);
+>>>>>>> fix1
 		    }
 		}
 		break;
@@ -65,5 +86,6 @@ int main(int argc, char *argv[])
 	}
 	/* And close the session */
 	pcap_close(handle);
+	    
 	return(0);
 }

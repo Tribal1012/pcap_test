@@ -42,8 +42,8 @@ typedef struct _IP_HEADER {
     DWORD   Source;	    /* Source Address */
     DWORD   Dest;	    /* Destination Address */
     union   _ip_pad {
-	char options[40];
-	char pad[40];
+	BYTE options[40];
+	BYTE pad[40];
     } ip_pad;
 } ip_h, *pip_h;
 
@@ -66,16 +66,23 @@ typedef struct _TCP_HEADER {
     WORD    Checksum;	    /* Checksum */
     WORD    Urgent;	    /* Urgent */
     union   _tcp_pad {
-	char options[40];
-	char pad[40];
+	BYTE options[40];
+	BYTE pad[40];
     } tcp_pad;
 } tcp_h, *ptcp_h;
 
-int get_headers(pether_h peh, pip_h pih, ptcp_h pth, const u_char *packet);
+#define data_len(x, y) (ip_t_len(x) - ip_h_len(x) - tcp_h_len(y))
+
+DWORD get_headers(pether_h peh, pip_h pih, ptcp_h pth, const u_char *packet);
 void print_ether(const pether_h peh);
 void print_ip(const pip_h pih);
 void print_tcp(const ptcp_h pth);
+<<<<<<< HEAD
 //void print_packet(const u_char *packet, const DWORD total_size);
 
+=======
+void print_data(const char* data, const DWORD data_len);
+//void print_packet(const u_char *packet, const DWORD total_size);
+>>>>>>> fix1
 
 #endif
