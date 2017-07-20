@@ -27,6 +27,7 @@ typedef struct _ETHERNET_HEADER {
 
 #define ip_ver(x) (((pip_h)x)>>4)
 #define ip_h_len(x) (((pip_h)x)->Ver_Len&0xf)*4
+#define ip_t_len(x) (((pip_h)x)->Total_len)*4
 #define ip_flags(x) (((pip_h)x)>>13)
 #define ip_frag(x) (((pip_h)x)->&&0x1fff)
 typedef struct _IP_HEADER {
@@ -52,7 +53,6 @@ typedef struct _IP_HEADER {
 */
 #define TCP_MIN_SIZE	0x14
 #define TCP_SIZE	sizeof(tcp_h)
-#define BUF_SIZE	256
 
 #define tcp_h_len(x)	(((ptcp_h)x)->Len_Rsv_Code>>12)*4
 #define tcp_code(x)	(((ptcp_h)x)->Len_Rsv_Code&0x3f)
@@ -69,13 +69,13 @@ typedef struct _TCP_HEADER {
 	char options[40];
 	char pad[40];
     } tcp_pad;
-    char    data[BUF_SIZE];
 } tcp_h, *ptcp_h;
 
 int get_headers(pether_h peh, pip_h pih, ptcp_h pth, const u_char *packet);
 void print_ether(const pether_h peh);
 void print_ip(const pip_h pih);
 void print_tcp(const ptcp_h pth);
-void print_packet(const u_char *packet, const DWORD total_size);
+//void print_packet(const u_char *packet, const DWORD total_size);
+
 
 #endif
