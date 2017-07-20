@@ -133,25 +133,18 @@ void print_ether(const pether_h peh) {
    Print a IP HEADER
 */
 void print_ip(const pip_h pih) {
+    char temp[INET_ADDRSTRLEN] = {0, };
+
     fflush(stdout);
     puts("==========================================");
     puts("|		  IP Header                |"); 
     puts("==========================================");
     printf("IP Source Address      : ");
-    for(unsigned int i=0; i<4; i++) {
-	printf("%u", *((char*)&(pih->Source)+i)&0xff);
-	if(i==3) break;
-	printf(".");
-    }
-    printf("\n");
-
+    inet_ntop(AF_INET, &(pih->Source), temp, INET_ADDRSTRLEN);
+    puts(temp);
     printf("IP Destination Address : ");
-    for(unsigned int i=0; i<4; i++) {
-	printf("%u", *((char*)&(pih->Dest)+i)&0xff);
-	if(i==3) break;
-	printf(".");
-    }
-    printf("\n");
+    inet_ntop(AF_INET, &(pih->Dest), temp, INET_ADDRSTRLEN);
+    puts(temp);
 }
 
 /*

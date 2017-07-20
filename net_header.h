@@ -42,8 +42,8 @@ typedef struct _IP_HEADER {
     DWORD   Source;	    /* Source Address */
     DWORD   Dest;	    /* Destination Address */
     union   _ip_pad {
-	char options[40];
-	char pad[40];
+	BYTE options[40];
+	BYTE pad[40];
     } ip_pad;
 } ip_h, *pip_h;
 
@@ -66,8 +66,8 @@ typedef struct _TCP_HEADER {
     WORD    Checksum;	    /* Checksum */
     WORD    Urgent;	    /* Urgent */
     union   _tcp_pad {
-	char options[40];
-	char pad[40];
+	BYTE options[40];
+	BYTE pad[40];
     } tcp_pad;
 } tcp_h, *ptcp_h;
 
