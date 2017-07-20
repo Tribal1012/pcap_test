@@ -3,14 +3,13 @@
 #include <string.h>
 #include "net_header.h"
 
-#define data_len(x, y) (ip_t_len(x) - ip_h_len(x) - tcp_h_len(y))
 
 int main(int argc, char *argv[])
 {
 	ether_h eh;			/* Ethernet header */
 	ip_h ih;			/* IP header */
 	tcp_h th;			/* TCP header */
-	char* data;			/* for Packet's data */
+	DWORD data_offset = 0;	    	/* for Packet's data */
 	DWORD data_len;			/* Packet's data length */
 
 	pcap_t *handle;			/* Session handle */
@@ -55,7 +54,7 @@ int main(int argc, char *argv[])
 	memset(&th, 0, sizeof(th));
 	while(1) {
 	    if(pcap_next_ex(handle, &header, &packet)) {
-		get_headers(&eh, &ih, &th, packet);
+		data_offset = get_headers(&eh, &ih, &th, packet);
 		
 		print_ether(&eh);
 		if(eh.Type == TYPE_IP) {
@@ -63,7 +62,7 @@ int main(int argc, char *argv[])
 		    if(ih.Protocol == TCP_PROTOCOL) {
 			print_tcp(&th);
 			data_len = data_len(&ih, &th);
-			printf("data length : %x\n", data_len);
+			if(data_len != 0) print_data(((char*)packet)+data_offset, data_len);
 		    }
 		}
 		break;
@@ -71,5 +70,6 @@ int main(int argc, char *argv[])
 	}
 	/* And close the session */
 	pcap_close(handle);
+	    
 	return(0);
 }
