@@ -77,12 +77,7 @@ DWORD get_headers(pether_h peh, pip_h pih, ptcp_h pth, const u_char *packet);
 void print_ether(const pether_h peh);
 void print_ip(const pip_h pih);
 void print_tcp(const ptcp_h pth);
-<<<<<<< HEAD
-//void print_packet(const u_char *packet, const DWORD total_size);
-
-=======
 void print_data(const char* data, const DWORD data_len);
 //void print_packet(const u_char *packet, const DWORD total_size);
->>>>>>> fix1
 
 #endif

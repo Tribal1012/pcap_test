@@ -87,9 +87,6 @@ DWORD get_headers(pether_h peh, pip_h pih, ptcp_h pth, const u_char *packet) {
 	    pth->Ack_num = l_endian32(((ptcp_h)temp)->Ack_num);
 	    pth->Len_Rsv_Code = l_endian16(((ptcp_h)temp)->Len_Rsv_Code);
 
-<<<<<<< HEAD
-//	    memcpy(&pth->data, packet+ETHERNET_SIZE+ip_h_len(pih)+tcp_h_len(temp), 24);
-=======
 	    /* ip header's total length
 	       - ip header's header length
 	       - tcp header's header length
@@ -102,7 +99,6 @@ DWORD get_headers(pether_h peh, pip_h pih, ptcp_h pth, const u_char *packet) {
 	    else {
 		return ETHERNET_SIZE+ip_h_len(pih)+tcp_h_len(temp);
 	    }
->>>>>>> fix1
 	}
 	else return ETHERNET_SIZE+ip_h_len(pih);
     }
@@ -162,16 +158,5 @@ void print_tcp(const ptcp_h pth) {
     puts("==========================================");
     printf("Source port     : %u\n", pth->Source);
     printf("Destnation port : %u\n", pth->Dest);
-<<<<<<< HEAD
-
-    /*
-    printf("Data[24 Bytes]  : ");
-    for(unsigned int i=0; i<24; i++) {
-	printf("%c", isprint(*(pth->data+i))?(char)*(pth->data+i):'.');
-    }
-    printf("\n");
-    */
-=======
->>>>>>> fix1
 }
 
