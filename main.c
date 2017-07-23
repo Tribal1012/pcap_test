@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 	memset(&ih, 0, sizeof(ih));
 	memset(&th, 0, sizeof(th));
 	while(1) {
-	    if(pcap_next_ex(handle, &header, &packet)) {
+	    if(pcap_next_ex(handle, (struct pcap_pkthdr **)&header, &packet)) {
 		data_offset = get_headers(&eh, &ih, &th, packet);
 		
 		print_ether(&eh);
