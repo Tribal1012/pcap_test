@@ -4,7 +4,7 @@ OBJECT = main.o pcap_test.o
 SRC = main.c pcap_test.c
  
 CC = gcc
-CFLAGS = -lpcap
+CFLAGS = -lpcap -Wall
 
 TARGET = pcap_test
  

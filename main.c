@@ -15,13 +15,11 @@ int main(int argc, char *argv[])
 	DWORD data_len;			/* Packet's data length */
 
 	pcap_t *handle;			/* Session handle */
-	DWORD res;
-	BYTE *dev;			/* The device to sniff on */
-	BYTE errbuf[PCAP_ERRBUF_SIZE];	/* Error string */
+	char *dev;			/* The device to sniff on */
+	char errbuf[PCAP_ERRBUF_SIZE];	/* Error string */
 	struct bpf_program fp;		/* The compiled filter */
-	BYTE filter_exp[] = "port 80";	/* The filter expression */
-	bpf_u_int32 mask;		/* Our netmask */
-	bpf_u_int32 net;		/* Our IP */
+	char filter_exp[] = "port 80";	/* The filter expression */
+	bpf_u_int32 net = 0;		/* Our IP */
 	struct pcap_pkthdr header;	/* The header that pcap gives us */
 	const u_char *packet;		/* The actual packet */
 
