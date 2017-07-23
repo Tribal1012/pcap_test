@@ -94,8 +94,6 @@ DWORD get_headers(pether_h peh, pip_h pih, ptcp_h pth, const u_char *packet) {
 	    data_len = data_len(pih, pth);
 	    /* No data */
 	    if(data_len == 0)     return 0;
-	    /* Error */
-	    else if(data_len < 0) return 0;
 	    else {
 		return ETHERNET_SIZE+ip_h_len(pih)+tcp_h_len(temp);
 	    }
